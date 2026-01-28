@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAMScan | Market Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --bg-tertiary: #f0f0f0;
+            --bg-card: #ffffff;
+            --border-color: #e0e0e0;
+            --text-primary: #111111;
+            --text-secondary: #333333;
+            --text-muted: #888888;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --matrix-green: #111111;
+            --matrix-green-dark: #e0e0e0;
+            --matrix-green-mid: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Fira Code', 'Share Tech Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        ::selection { background: var(--matrix-green); color: black; }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--matrix-green-dark);
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+            
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .logo-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: var(--matrix-green);
+            
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-item {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            color: var(--matrix-green);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            color: var(--matrix-green);
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--matrix-green-dark);
+            
+        }
+
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--matrix-green);
+            
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--matrix-green-dark);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-container.large {
+            height: 400px;
+        }
+
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .insight-item:last-child { border-bottom: none; }
+
+        .insight-icon {
+            font-size: 1.5rem;
+        }
+
+        .insight-content h4 {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-content p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--matrix-green-dark);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2rem;
+            color: var(--matrix-green);
+            
+        }
+
+        .metric-value.up {
+            color: #ef4444;
+            
+        }
+
+        .metric-value.down {
+            color: var(--matrix-green);
+        }
+
+        .metric-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+        }
+
+        .forecast-item:last-child { border-bottom: none; }
+
+        .forecast-period {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .forecast-prediction {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .forecast-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.25rem;
+        }
+
+        .forecast-value.up {
+            color: #ef4444;
+        }
+
+        .forecast-value.down {
+            color: var(--matrix-green);
+        }
+
+        .confidence-bar {
+            width: 100px;
+            height: 4px;
+            background: var(--matrix-green-dark);
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--matrix-green);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.75rem;
+            color: var(--matrix-green);
+            
+            margin: 2rem 0 1.5rem;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid var(--matrix-green-dark);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .metric-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav { display: none; }
+            .metric-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">RAM</div>
+                <span class="logo-text">RAMScan</span>
+            </div>
+            <nav class="nav">
+                <a class="nav-item" href="index.html">Dashboard</a>
+                <a class="nav-item" href="prices.html">Prices</a>
+                <a class="nav-item" href="availability.html">Availability</a>
+                <a class="nav-item active" href="analysis.html">Analysis</a>
+                <a class="nav-item" href="news.html">News</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Market Analysis</h1>
+            <p class="page-subtitle">AI-powered insights and price forecasting</p>
+        </div>
+
+        <div class="metric-grid" style="margin-bottom: 2rem;">
+            <div class="metric-card">
+                <div class="metric-value up">+18.4%</div>
+                <div class="metric-label">DDR5 Price Change (30D)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value down">-3.2%</div>
+                <div class="metric-label">DDR4 Price Change (30D)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value up">-34%</div>
+                <div class="metric-label">Supply vs Last Year</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">2.8x</div>
+                <div class="metric-label">Demand Multiplier</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card full-width">
+                <div class="card-header">
+                    <span class="card-title">Historical Price Trends (12 Months)</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container large">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Supply vs Demand</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="supplyDemandChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Market Share by Manufacturer</span>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Price Forecast</h2>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">DDR5 Price Predictions</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 7 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value up">+5.2%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 92%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">92% conf</span>
+                        </div>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 30 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value up">+12.8%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 78%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">78% conf</span>
+                        </div>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 90 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value up">+24.5%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 61%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">61% conf</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">DDR4 Price Predictions</span>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 7 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value down">-1.2%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 88%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">88% conf</span>
+                        </div>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 30 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value down">-4.5%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 72%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">72% conf</span>
+                        </div>
+                    </div>
+                    <div class="forecast-item">
+                        <span class="forecast-period">Next 90 Days</span>
+                        <div class="forecast-prediction">
+                            <span class="forecast-value down">-8.2%</span>
+                            <div class="confidence-bar"><div class="confidence-fill" style="width: 58%;"></div></div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">58% conf</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Key Insights</h2>
+
+        <div class="card">
+            <div class="card-body" style="padding: 0;">
+                <ul class="insight-list">
+                    <li class="insight-item">
+                        <span class="insight-icon">⚠️</span>
+                        <div class="insight-content">
+                            <h4>Critical Supply Shortage Detected</h4>
+                            <p>Samsung and SK Hynix have both reported 20-25% production capacity reductions due to facility maintenance and equipment upgrades. This is expected to persist through Q2 2026.</p>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <span class="insight-icon">📈</span>
+                        <div class="insight-content">
+                            <h4>AI Demand Surge Continues</h4>
+                            <p>Data center memory demand has increased 180% YoY, driven by AI/ML workloads. This is absorbing supply that would typically go to consumer markets.</p>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <span class="insight-icon">🔄</span>
+                        <div class="insight-content">
+                            <h4>DDR4 to DDR5 Transition Accelerating</h4>
+                            <p>DDR4 prices continue to decline as manufacturers shift production lines to DDR5. Expect DDR4 availability to decrease 40% by Q3 2026.</p>
+                        </div>
+                    </li>
+                    <li class="insight-item">
+                        <span class="insight-icon">🌏</span>
+                        <div class="insight-content">
+                            <h4>Regional Arbitrage Opportunity</h4>
+                            <p>SE Asia markets show 15-20% lower prices than North America. Import opportunities exist for bulk purchasers, though shipping times have increased to 3-4 weeks.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>RAMScan v2.4.1 // Analysis updated hourly // AI predictions for informational purposes only</p>
+        <p style="margin-top: 0.5rem;">© 2026 RAMScan Systems // All rights reserved</p>
+    </footer>
+
+    <script>
+        // Historical Price Chart
+        const historyCtx = document.getElementById('historyChart').getContext('2d');
+        new Chart(historyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+                datasets: [{
+                    label: 'DDR5 32GB',
+                    data: [145, 142, 138, 135, 140, 148, 155, 162, 168, 175, 182, 189],
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2
+                }, {
+                    label: 'DDR4 32GB',
+                    data: [78, 76, 74, 72, 70, 69, 68, 67, 66, 65, 65, 64],
+                    borderColor: '#00aa00',
+                    backgroundColor: 'rgba(0, 170, 0, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: { color: '#22c55e', font: { family: "'Share Tech Mono', monospace" } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#008800', font: { family: "'Share Tech Mono', monospace" } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#008800', font: { family: "'Share Tech Mono', monospace" }, callback: v => '$' + v }
+                    }
+                }
+            }
+        });
+
+        // Supply vs Demand Chart
+        const supplyCtx = document.getElementById('supplyDemandChart').getContext('2d');
+        new Chart(supplyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Q1 25', 'Q2 25', 'Q3 25', 'Q4 25', 'Q1 26'],
+                datasets: [{
+                    label: 'Supply',
+                    data: [100, 92, 85, 78, 66],
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    borderColor: '#22c55e',
+                    borderWidth: 1
+                }, {
+                    label: 'Demand',
+                    data: [95, 110, 125, 140, 155],
+                    backgroundColor: 'rgba(255, 51, 51, 0.6)',
+                    borderColor: '#ef4444',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#22c55e', font: { family: "'Share Tech Mono', monospace" } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#008800', font: { family: "'Share Tech Mono', monospace" } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { color: '#008800', font: { family: "'Share Tech Mono', monospace" } }
+                    }
+                }
+            }
+        });
+
+        // Market Share Chart
+        const marketCtx = document.getElementById('marketShareChart').getContext('2d');
+        new Chart(marketCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Samsung', 'SK Hynix', 'Micron', 'Others'],
+                datasets: [{
+                    data: [42, 29, 23, 6],
+                    backgroundColor: ['#22c55e', '#00cc00', '#009900', '#006600'],
+                    borderColor: '#000000',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#22c55e', font: { family: "'Share Tech Mono', monospace" }, padding: 20 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

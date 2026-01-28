@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAMScan | Stock Availability</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --bg-tertiary: #f0f0f0;
+            --bg-card: #ffffff;
+            --border-color: #e0e0e0;
+            --text-primary: #111111;
+            --text-secondary: #333333;
+            --text-muted: #888888;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --matrix-green: #111111;
+            --matrix-green-dark: #e0e0e0;
+            --matrix-green-mid: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Fira Code', 'Share Tech Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        ::selection { background: var(--matrix-green); color: black; }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--matrix-green-dark);
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 2px solid var(--matrix-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--matrix-green);
+            
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .logo-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: var(--matrix-green);
+            
+            letter-spacing: 2px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-item {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            color: var(--matrix-green);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item.active {
+            color: var(--matrix-green);
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--matrix-green-dark);
+            
+        }
+
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--matrix-green);
+            
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--matrix-green-dark);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.5rem;
+            color: var(--matrix-green);
+            
+        }
+
+        .stat-value.critical {
+            color: #ef4444;
+            
+        }
+
+        .stat-value.warning {
+            color: #22c55e;
+            
+        }
+
+        .stat-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        .region-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .region-card {
+            background: var(--bg-card);
+            border: 1px solid var(--matrix-green-dark);
+        }
+
+        .region-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .region-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--matrix-green);
+            
+        }
+
+        .region-status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            padding: 0.25rem 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid;
+        }
+
+        .region-status.good {
+            color: #22c55e;
+            border-color: #22c55e;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .region-status.limited {
+            color: #22c55e;
+            border-color: #22c55e;
+            background: rgba(0, 255, 102, 0.1);
+        }
+
+        .region-status.critical {
+            color: #ef4444;
+            border-color: #ef4444;
+            background: rgba(255, 51, 51, 0.1);
+        }
+
+        .region-body {
+            padding: 1.5rem;
+        }
+
+        .availability-bar {
+            height: 8px;
+            background: var(--matrix-green-dark);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .availability-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .availability-fill.good { background: #22c55e; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .availability-fill.limited { background: #22c55e; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .availability-fill.critical { background: #ef4444; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .region-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .region-stat {
+            text-align: center;
+            padding: 0.75rem;
+            border: 1px solid var(--matrix-green-dark);
+        }
+
+        .region-stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--matrix-green);
+            
+        }
+
+        .region-stat-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--matrix-green-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            
+        }
+
+        .retailer-list {
+            padding: 1.5rem;
+        }
+
+        .retailer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--matrix-green-dark);
+        }
+
+        .retailer-row:last-child { border-bottom: none; }
+
+        .retailer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .retailer-logo {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--matrix-green-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--matrix-green);
+        }
+
+        .retailer-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+        }
+
+        .retailer-location {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .stock-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stock-count {
+            text-align: right;
+        }
+
+        .stock-number {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--matrix-green);
+            
+        }
+
+        .stock-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .stock-bar {
+            width: 150px;
+            height: 6px;
+            background: var(--matrix-green-dark);
+        }
+
+        .stock-bar-fill {
+            height: 100%;
+            background: var(--matrix-green);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem;
+            border-top: 1px solid var(--matrix-green-dark);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav { display: none; }
+            .stats-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">RAM</div>
+                <span class="logo-text">RAMScan</span>
+            </div>
+            <nav class="nav">
+                <a class="nav-item" href="index.html">Dashboard</a>
+                <a class="nav-item" href="prices.html">Prices</a>
+                <a class="nav-item active" href="availability.html">Availability</a>
+                <a class="nav-item" href="analysis.html">Analysis</a>
+                <a class="nav-item" href="news.html">News</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="page-header">
+            <h1 class="page-title">Stock Availability</h1>
+            <p class="page-subtitle">Real-time inventory tracking across global markets</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">54%</div>
+                <div class="stat-label">Global DDR5 Stock Level</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">78%</div>
+                <div class="stat-label">Global DDR4 Stock Level</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value critical">3</div>
+                <div class="stat-label">Regions in Critical</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value warning">847K</div>
+                <div class="stat-label">Units Backordered</div>
+            </div>
+        </div>
+
+        <h2 style="font-family: 'Share Tech Mono', monospace; font-size: 1.75rem; color: var(--matrix-green); margin-bottom: 1.5rem; ">Regional Availability</h2>
+
+        <div class="region-grid">
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">North America</span>
+                    <span class="region-status limited">Limited</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill limited" style="width: 62%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">62%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">124K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$187</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+18%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">Europe</span>
+                    <span class="region-status good">Good</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill good" style="width: 78%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">78%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">189K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$168</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+10%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">East Asia</span>
+                    <span class="region-status critical">Critical</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill critical" style="width: 28%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">28%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">67K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$235</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+24%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">South Asia</span>
+                    <span class="region-status limited">Limited</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill limited" style="width: 45%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">45%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">98K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$198</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+17%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">SE Asia</span>
+                    <span class="region-status good">Good</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill good" style="width: 82%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">82%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">156K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$162</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+9%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="region-card">
+                <div class="region-header">
+                    <span class="region-name">Russia</span>
+                    <span class="region-status critical">Critical</span>
+                </div>
+                <div class="region-body">
+                    <div class="availability-bar">
+                        <div class="availability-fill critical" style="width: 28%;"></div>
+                    </div>
+                    <div class="region-stats">
+                        <div class="region-stat">
+                            <div class="region-stat-value">28%</div>
+                            <div class="region-stat-label">Availability</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">34K</div>
+                            <div class="region-stat-label">Units in Stock</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">$246</div>
+                            <div class="region-stat-label">Avg Price</div>
+                        </div>
+                        <div class="region-stat">
+                            <div class="region-stat-value">+28%</div>
+                            <div class="region-stat-label">7D Change</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Retailer Stock Levels — DDR5 32GB Kits</span>
+            </div>
+            <div class="retailer-list">
+                <div class="retailer-row">
+                    <div class="retailer-info">
+                        <div class="retailer-logo">AMZ</div>
+                        <div>
+                            <div class="retailer-name">Amazon US</div>
+                            <div class="retailer-location">United States</div>
+                        </div>
+                    </div>
+                    <div class="stock-indicator">
+                        <div class="stock-count">
+                            <div class="stock-number">12,847</div>
+                            <div class="stock-label">Units Available</div>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-bar-fill" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="retailer-row">
+                    <div class="retailer-info">
+                        <div class="retailer-logo">NE</div>
+                        <div>
+                            <div class="retailer-name">Newegg</div>
+                            <div class="retailer-location">United States</div>
+                        </div>
+                    </div>
+                    <div class="stock-indicator">
+                        <div class="stock-count">
+                            <div class="stock-number">8,234</div>
+                            <div class="stock-label">Units Available</div>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-bar-fill" style="width: 42%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="retailer-row">
+                    <div class="retailer-info">
+                        <div class="retailer-logo">MC</div>
+                        <div>
+                            <div class="retailer-name">Micro Center</div>
+                            <div class="retailer-location">United States</div>
+                        </div>
+                    </div>
+                    <div class="stock-indicator">
+                        <div class="stock-count">
+                            <div class="stock-number">3,421</div>
+                            <div class="stock-label">Units Available</div>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-bar-fill" style="width: 28%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="retailer-row">
+                    <div class="retailer-info">
+                        <div class="retailer-logo">BB</div>
+                        <div>
+                            <div class="retailer-name">Best Buy</div>
+                            <div class="retailer-location">United States</div>
+                        </div>
+                    </div>
+                    <div class="stock-indicator">
+                        <div class="stock-count">
+                            <div class="stock-number">5,892</div>
+                            <div class="stock-label">Units Available</div>
+                        </div>
+                        <div class="stock-bar">
+                            <div class="stock-bar-fill" style="width: 35%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>RAMScan v2.4.1 // Stock data refreshes every 5 minutes // All regions tracked</p>
+        <p style="margin-top: 0.5rem;">© 2026 RAMScan Systems // All rights reserved</p>
+    </footer>
+</body>
+</html>
