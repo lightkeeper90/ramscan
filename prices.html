@@ -299,16 +299,23 @@
             background: var(--bg-card);
             border: 1px solid var(--matrix-green-dark);
             padding: 1.5rem;
+            border-radius: 12px;
         }
 
-        .retailer-name {
+        a.retailer-name {
+            display: block;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 1.5rem;
-            color: var(--matrix-green);
-            
+            font-size: 1.25rem;
+            color: #111111;
+            text-decoration: none;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--matrix-green-dark);
+            transition: color 0.2s;
+        }
+
+        a.retailer-name:hover {
+            color: #666666;
         }
 
         .retailer-item {
@@ -321,15 +328,23 @@
 
         .retailer-item:last-child { border-bottom: none; }
 
-        .item-name {
-            font-size: 0.8rem;
+        a.item-name {
+            font-size: 0.85rem;
             color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a.item-name:hover {
+            color: #111111;
+            text-decoration: underline;
         }
 
         .item-price {
             font-family: 'Share Tech Mono', monospace;
             font-size: 1.1rem;
-            color: var(--matrix-green);
+            color: #111111;
+            font-weight: 600;
         }
 
         .footer {
@@ -538,62 +553,62 @@
 
         <div class="retailer-prices">
             <div class="retailer-card">
-                <div class="retailer-name">Amazon</div>
+                <a href="https://www.amazon.com/s?k=ddr5+ram+32gb" target="_blank" class="retailer-name">Amazon ↗</a>
                 <div class="retailer-item">
-                    <span class="item-name">Corsair Dominator 32GB DDR5-6000</span>
+                    <a href="https://www.amazon.com/s?k=corsair+dominator+32gb+ddr5" target="_blank" class="item-name">Corsair Dominator 32GB DDR5-6000</a>
                     <span class="item-price">$189.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">G.Skill Trident Z5 32GB DDR5-6400</span>
+                    <a href="https://www.amazon.com/s?k=gskill+trident+z5+32gb+ddr5" target="_blank" class="item-name">G.Skill Trident Z5 32GB DDR5-6400</a>
                     <span class="item-price">$214.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">Kingston Fury 32GB DDR5-5600</span>
+                    <a href="https://www.amazon.com/s?k=kingston+fury+32gb+ddr5" target="_blank" class="item-name">Kingston Fury 32GB DDR5-5600</a>
                     <span class="item-price">$134.99</span>
                 </div>
             </div>
             <div class="retailer-card">
-                <div class="retailer-name">Newegg</div>
+                <a href="https://www.newegg.com/p/pl?N=100007611%20601349791" target="_blank" class="retailer-name">Newegg ↗</a>
                 <div class="retailer-item">
-                    <span class="item-name">Corsair Dominator 32GB DDR5-6000</span>
+                    <a href="https://www.newegg.com/p/pl?d=corsair+dominator+32gb+ddr5" target="_blank" class="item-name">Corsair Dominator 32GB DDR5-6000</a>
                     <span class="item-price">$184.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">G.Skill Trident Z5 32GB DDR5-6400</span>
+                    <a href="https://www.newegg.com/p/pl?d=gskill+trident+z5+32gb+ddr5" target="_blank" class="item-name">G.Skill Trident Z5 32GB DDR5-6400</a>
                     <span class="item-price">$219.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">Kingston Fury 32GB DDR5-5600</span>
+                    <a href="https://www.newegg.com/p/pl?d=kingston+fury+32gb+ddr5" target="_blank" class="item-name">Kingston Fury 32GB DDR5-5600</a>
                     <span class="item-price">$132.99</span>
                 </div>
             </div>
             <div class="retailer-card">
-                <div class="retailer-name">Best Buy</div>
+                <a href="https://www.bestbuy.com/site/searchpage.jsp?st=ddr5+ram+32gb" target="_blank" class="retailer-name">Best Buy ↗</a>
                 <div class="retailer-item">
-                    <span class="item-name">Corsair Dominator 32GB DDR5-6000</span>
+                    <a href="https://www.bestbuy.com/site/searchpage.jsp?st=corsair+dominator+ddr5" target="_blank" class="item-name">Corsair Dominator 32GB DDR5-6000</a>
                     <span class="item-price">$199.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">G.Skill Trident Z5 32GB DDR5-6400</span>
+                    <a href="https://www.bestbuy.com/site/searchpage.jsp?st=gskill+trident+z5+ddr5" target="_blank" class="item-name">G.Skill Trident Z5 32GB DDR5-6400</a>
                     <span class="item-price">$224.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">Kingston Fury 32GB DDR5-5600</span>
+                    <a href="https://www.bestbuy.com/site/searchpage.jsp?st=kingston+fury+ddr5" target="_blank" class="item-name">Kingston Fury 32GB DDR5-5600</a>
                     <span class="item-price">$139.99</span>
                 </div>
             </div>
             <div class="retailer-card">
-                <div class="retailer-name">Micro Center</div>
+                <a href="https://www.microcenter.com/search/search_results.aspx?N=4294966965&Ntt=ddr5+32gb" target="_blank" class="retailer-name">Micro Center ↗</a>
                 <div class="retailer-item">
-                    <span class="item-name">Corsair Dominator 32GB DDR5-6000</span>
+                    <a href="https://www.microcenter.com/search/search_results.aspx?Ntt=corsair+dominator+ddr5" target="_blank" class="item-name">Corsair Dominator 32GB DDR5-6000</a>
                     <span class="item-price">$179.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">G.Skill Trident Z5 32GB DDR5-6400</span>
+                    <a href="https://www.microcenter.com/search/search_results.aspx?Ntt=gskill+trident+z5+ddr5" target="_blank" class="item-name">G.Skill Trident Z5 32GB DDR5-6400</a>
                     <span class="item-price">$209.99</span>
                 </div>
                 <div class="retailer-item">
-                    <span class="item-name">Kingston Fury 32GB DDR5-5600</span>
+                    <a href="https://www.microcenter.com/search/search_results.aspx?Ntt=kingston+fury+ddr5" target="_blank" class="item-name">Kingston Fury 32GB DDR5-5600</a>
                     <span class="item-price">$129.99</span>
                 </div>
             </div>
