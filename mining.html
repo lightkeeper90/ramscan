@@ -792,7 +792,7 @@
                     <div class="stat-label">Your Staked $RAM</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value green" id="earnedSol">0.0000</div>
+                    <div class="stat-value green" id="earnedSol">0.000000</div>
                     <div class="stat-label">SOL Earned</div>
                 </div>
                 <div class="stat-card">
@@ -805,67 +805,123 @@
                 </div>
             </div>
 
+            <!-- Staking Console -->
+            <div class="mining-console" style="margin-bottom: 2rem;">
+                <div class="console-header">
+                    <div class="console-dots">
+                        <div class="console-dot red"></div>
+                        <div class="console-dot yellow"></div>
+                        <div class="console-dot green"></div>
+                    </div>
+                    <div class="console-title">🔒 Staking Terminal</div>
+                </div>
+                <div class="console-body" id="stakingConsole" style="min-height: 150px; max-height: 150px;">
+                    <div class="console-line system">[STAKING] RAMScan Staking Protocol v1.0</div>
+                    <div class="console-line info">[INFO] Connect wallet to stake $RAM...</div>
+                </div>
+            </div>
+
             <!-- Staking Interface -->
             <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;" id="stakingPanels">
                     <!-- Stake Panel -->
-                    <div style="background: #fff; border-radius: 12px; padding: 1.5rem;">
+                    <div style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                             <span style="font-size: 1.5rem;">🔒</span> Stake $RAM
                         </h3>
                         <div style="margin-bottom: 1rem;">
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Amount to Stake</label>
                             <div style="display: flex; gap: 0.5rem;">
-                                <input type="number" id="stakeAmount" placeholder="0" style="flex: 1; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1.1rem;">
-                                <button onclick="setMaxStake()" style="padding: 0.5rem 1rem; background: #f8f8f8; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-family: inherit;">MAX</button>
+                                <input type="number" id="stakeAmount" placeholder="0" style="flex: 1; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1.1rem; transition: border-color 0.2s;" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='var(--border-color)'">
+                                <button onclick="setMaxStake()" style="padding: 0.5rem 1rem; background: #f8f8f8; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.background='#f59e0b';this.style.color='#fff';this.style.borderColor='#f59e0b'" onmouseout="this.style.background='#f8f8f8';this.style.color='#111';this.style.borderColor='var(--border-color)'">MAX</button>
                             </div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
-                                Balance: <span id="ramBalance">0</span> $RAM
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between;">
+                                <span>Balance: <strong id="ramBalance" style="color: #111;">0</strong> $RAM</span>
+                                <span id="stakeUsdValue" style="color: #666;">≈ $0.00</span>
                             </div>
                         </div>
+                        
+                        <!-- Quick Amount Buttons -->
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="setStakePercent(25)" class="quick-btn" style="flex:1; padding: 0.5rem; background: #f8f8f8; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.8rem;">25%</button>
+                            <button onclick="setStakePercent(50)" class="quick-btn" style="flex:1; padding: 0.5rem; background: #f8f8f8; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.8rem;">50%</button>
+                            <button onclick="setStakePercent(75)" class="quick-btn" style="flex:1; padding: 0.5rem; background: #f8f8f8; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.8rem;">75%</button>
+                            <button onclick="setStakePercent(100)" class="quick-btn" style="flex:1; padding: 0.5rem; background: #f8f8f8; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.8rem;">100%</button>
+                        </div>
+
                         <div style="margin-bottom: 1rem;">
                             <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">Lock Period</label>
-                            <select id="lockPeriod" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; cursor: pointer;">
-                                <option value="7">7 Days (75% APY)</option>
-                                <option value="30" selected>30 Days (125% APY)</option>
-                                <option value="90">90 Days (200% APY)</option>
-                                <option value="180">180 Days (350% APY)</option>
+                            <select id="lockPeriod" onchange="updateApyDisplay()" style="width: 100%; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 1rem; cursor: pointer; background: #fff;">
+                                <option value="7">7 Days — 75% APY</option>
+                                <option value="30" selected>30 Days — 125% APY ⭐</option>
+                                <option value="90">90 Days — 200% APY 🔥</option>
+                                <option value="180">180 Days — 350% APY 💎</option>
                             </select>
                         </div>
-                        <button onclick="stakeTokens()" id="stakeBtn" disabled style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                            Connect Wallet to Stake
+
+                        <!-- Estimated Returns -->
+                        <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="font-size: 0.75rem; color: #16a34a; margin-bottom: 0.25rem;">Estimated Returns</div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: #16a34a;" id="estimatedReturns">0.000000 SOL</div>
+                            <div style="font-size: 0.75rem; color: #666;" id="estimatedUsd">≈ $0.00</div>
+                        </div>
+
+                        <button onclick="stakeTokens()" id="stakeBtn" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: not-allowed; transition: all 0.3s;">
+                            🔗 Connect Wallet to Stake
                         </button>
                     </div>
 
                     <!-- Unstake Panel -->
-                    <div style="background: #fff; border-radius: 12px; padding: 1.5rem;">
+                    <div style="background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                         <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.5rem;">🔓</span> Unstake & Claim
+                            <span style="font-size: 1.5rem;">🔓</span> Your Position
                         </h3>
+                        
+                        <!-- Position Details -->
                         <div style="background: #f8f8f8; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0;">
                                 <span style="color: var(--text-muted); font-size: 0.9rem;">Staked Amount</span>
-                                <span style="font-weight: 600;" id="stakedDisplay">0 $RAM</span>
+                                <span style="font-weight: 700; font-size: 1.1rem;" id="stakedDisplay">0 $RAM</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span style="color: var(--text-muted); font-size: 0.9rem;">Lock Ends</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0;">
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">Lock Period</span>
+                                <span id="lockPeriodDisplay">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0;">
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">Unlock Date</span>
                                 <span id="lockEndsDisplay">--</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e0e0e0;">
+                                <span style="color: var(--text-muted); font-size: 0.9rem;">Time Remaining</span>
+                                <span id="timeRemaining" style="font-family: 'Share Tech Mono', monospace;">--</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
                                 <span style="color: var(--text-muted); font-size: 0.9rem;">Pending Rewards</span>
-                                <span style="font-weight: 600; color: var(--accent-green);" id="pendingRewards">0 SOL</span>
+                                <span style="font-weight: 700; color: var(--accent-green); font-size: 1.1rem;" id="pendingRewards">0.000000 SOL</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button onclick="claimRewards()" id="claimBtn2" disabled style="flex: 1; padding: 1rem; background: var(--accent-green); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                                Claim SOL
+
+                        <!-- Reward Progress Bar -->
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.25rem;">
+                                <span style="color: var(--text-muted);">Reward Accumulation</span>
+                                <span id="rewardPercent" style="color: var(--accent-green);">0%</span>
+                            </div>
+                            <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div id="rewardProgressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <button onclick="claimRewards()" id="claimBtn2" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: not-allowed; transition: all 0.3s;">
+                                💰 Claim SOL
                             </button>
-                            <button onclick="unstakeTokens()" id="unstakeBtn" disabled style="flex: 1; padding: 1rem; background: #111; color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                                Unstake
+                            <button onclick="unstakeTokens()" id="unstakeBtn" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: not-allowed; transition: all 0.3s;">
+                                🔓 Unstake
                             </button>
                         </div>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">
-                            Early unstake incurs 10% penalty
+                        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+                            ⚠️ Early unstake incurs 10% penalty
                         </p>
                     </div>
                 </div>
@@ -924,7 +980,7 @@
                     <div class="step">
                         <div class="step-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">2</div>
                         <h3>Earn SOL</h3>
-                        <p>Rewards accrue every block in SOL</p>
+                        <p>Rewards accrue every second in SOL</p>
                     </div>
                     <div class="step">
                         <div class="step-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">3</div>
@@ -1142,35 +1198,117 @@
         // ==================== STAKING FUNCTIONS ====================
         let stakedAmount = 0;
         let stakeLockEnd = null;
+        let stakeLockDays = 0;
+        let stakeStartTime = null;
         let pendingSol = 0;
+        let totalClaimedSol = 0;
         let stakingInterval = null;
-        let ramBalance = 10000; // Simulated balance
+        let countdownInterval = null;
+        let ramBalance = 50000; // Simulated starting balance
+        
+        const SOL_PRICE = 180; // Simulated SOL price
+        const RAM_PRICE = 0.00015; // Simulated RAM price
+        
+        const APY_RATES = { 7: 0.75, 30: 1.25, 90: 2.0, 180: 3.5 };
+        const PENALTIES = { 7: 0.05, 30: 0.10, 90: 0.15, 180: 0.20 };
+        const MIN_STAKES = { 7: 1000, 30: 5000, 90: 10000, 180: 25000 };
+
+        // Staking console log
+        function addStakeLog(msg, type = '') {
+            const output = document.getElementById('stakingConsole');
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = msg;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+            
+            // Keep only last 20 lines
+            while (output.children.length > 20) {
+                output.removeChild(output.firstChild);
+            }
+        }
 
         function updateStakingUI() {
+            const stakeBtn = document.getElementById('stakeBtn');
+            const claimBtn = document.getElementById('claimBtn2');
+            const unstakeBtn = document.getElementById('unstakeBtn');
+
             if (walletConnected) {
-                document.getElementById('stakeBtn').disabled = false;
-                document.getElementById('stakeBtn').textContent = 'Stake $RAM';
+                // Update balance display
                 document.getElementById('ramBalance').textContent = ramBalance.toLocaleString();
                 
+                // Enable stake button
+                stakeBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+                stakeBtn.style.cursor = 'pointer';
+                stakeBtn.textContent = '🔒 Stake $RAM';
+                stakeBtn.onclick = stakeTokens;
+                
                 if (stakedAmount > 0) {
-                    document.getElementById('claimBtn2').disabled = false;
-                    document.getElementById('unstakeBtn').disabled = false;
+                    // Enable claim/unstake
+                    claimBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+                    claimBtn.style.cursor = 'pointer';
+                    
+                    unstakeBtn.style.background = 'linear-gradient(135deg, #111 0%, #333 100%)';
+                    unstakeBtn.style.cursor = 'pointer';
+                } else {
+                    claimBtn.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)';
+                    claimBtn.style.cursor = 'not-allowed';
+                    
+                    unstakeBtn.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)';
+                    unstakeBtn.style.cursor = 'not-allowed';
                 }
             } else {
-                document.getElementById('stakeBtn').disabled = true;
-                document.getElementById('stakeBtn').textContent = 'Connect Wallet to Stake';
-                document.getElementById('claimBtn2').disabled = true;
-                document.getElementById('unstakeBtn').disabled = true;
+                stakeBtn.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)';
+                stakeBtn.style.cursor = 'not-allowed';
+                stakeBtn.textContent = '🔗 Connect Wallet to Stake';
+                
+                claimBtn.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)';
+                claimBtn.style.cursor = 'not-allowed';
+                
+                unstakeBtn.style.background = 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)';
+                unstakeBtn.style.cursor = 'not-allowed';
             }
+            
+            updateEstimatedReturns();
         }
 
         function setMaxStake() {
             document.getElementById('stakeAmount').value = ramBalance;
+            updateEstimatedReturns();
+        }
+
+        function setStakePercent(percent) {
+            const amount = Math.floor(ramBalance * (percent / 100));
+            document.getElementById('stakeAmount').value = amount;
+            updateEstimatedReturns();
+        }
+
+        function updateApyDisplay() {
+            const lockDays = parseInt(document.getElementById('lockPeriod').value);
+            const apy = APY_RATES[lockDays] * 100;
+            document.getElementById('stakingApy').textContent = apy + '%';
+            updateEstimatedReturns();
+        }
+
+        function updateEstimatedReturns() {
+            const amount = parseFloat(document.getElementById('stakeAmount').value) || 0;
+            const lockDays = parseInt(document.getElementById('lockPeriod').value);
+            const apy = APY_RATES[lockDays];
+            
+            // Calculate SOL returns
+            const ramValue = amount * RAM_PRICE;
+            const dailyRate = apy / 365;
+            const totalReturn = ramValue * dailyRate * lockDays;
+            const solReturn = totalReturn / SOL_PRICE;
+            
+            document.getElementById('estimatedReturns').textContent = solReturn.toFixed(6) + ' SOL';
+            document.getElementById('estimatedUsd').textContent = '≈ $' + totalReturn.toFixed(2);
+            document.getElementById('stakeUsdValue').textContent = '≈ $' + ramValue.toFixed(2);
         }
 
         function stakeTokens() {
             if (!walletConnected) {
-                alert('Please connect your wallet first!');
+                addStakeLog('[ERROR] Please connect wallet first', 'warning');
                 return;
             }
 
@@ -1178,120 +1316,253 @@
             const lockDays = parseInt(document.getElementById('lockPeriod').value);
 
             if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
+                addStakeLog('[ERROR] Please enter a valid amount', 'warning');
                 return;
             }
 
             if (amount > ramBalance) {
-                alert('Insufficient $RAM balance');
+                addStakeLog('[ERROR] Insufficient $RAM balance', 'warning');
                 return;
             }
 
-            // Min stake requirements
-            const minStakes = { 7: 1000, 30: 5000, 90: 10000, 180: 25000 };
-            if (amount < minStakes[lockDays]) {
-                alert(`Minimum stake for ${lockDays} days is ${minStakes[lockDays].toLocaleString()} $RAM`);
+            if (amount < MIN_STAKES[lockDays]) {
+                addStakeLog(`[ERROR] Min stake for ${lockDays} days: ${MIN_STAKES[lockDays].toLocaleString()} $RAM`, 'warning');
+                return;
+            }
+
+            if (stakedAmount > 0) {
+                addStakeLog('[ERROR] Already have active stake. Unstake first.', 'warning');
                 return;
             }
 
             // Process stake
-            stakedAmount += amount;
-            ramBalance -= amount;
-            stakeLockEnd = new Date(Date.now() + lockDays * 24 * 60 * 60 * 1000);
-
-            // Update UI
-            document.getElementById('totalStaked').textContent = stakedAmount.toLocaleString();
-            document.getElementById('stakedDisplay').textContent = stakedAmount.toLocaleString() + ' $RAM';
-            document.getElementById('lockEndsDisplay').textContent = stakeLockEnd.toLocaleDateString();
-            document.getElementById('ramBalance').textContent = ramBalance.toLocaleString();
-            document.getElementById('stakeAmount').value = '';
-
-            // Start earning simulation
-            if (!stakingInterval) {
-                const apyRates = { 7: 0.75, 30: 1.25, 90: 2.0, 180: 3.5 };
-                const apy = apyRates[lockDays];
-                
-                stakingInterval = setInterval(() => {
-                    // Earn SOL based on staked amount and APY
-                    const dailyRate = apy / 365;
-                    const secondRate = dailyRate / 86400;
-                    const solEarned = (stakedAmount * secondRate) / 1000; // Convert to SOL value
-                    pendingSol += solEarned;
-                    
-                    document.getElementById('earnedSol').textContent = pendingSol.toFixed(6);
-                    document.getElementById('pendingRewards').textContent = pendingSol.toFixed(6) + ' SOL';
-                }, 1000);
-            }
-
-            addLog(`[STAKE] Staked ${amount.toLocaleString()} $RAM for ${lockDays} days`, 'success');
-            addLog(`[STAKE] Lock ends: ${stakeLockEnd.toLocaleDateString()}`, 'info');
+            addStakeLog('[STAKE] Processing transaction...', 'info');
             
-            updateStakingUI();
+            setTimeout(() => {
+                stakedAmount = amount;
+                ramBalance -= amount;
+                stakeLockDays = lockDays;
+                stakeStartTime = Date.now();
+                stakeLockEnd = new Date(Date.now() + lockDays * 24 * 60 * 60 * 1000);
+                pendingSol = 0;
+
+                // Update UI
+                document.getElementById('totalStaked').textContent = stakedAmount.toLocaleString();
+                document.getElementById('stakedDisplay').textContent = stakedAmount.toLocaleString() + ' $RAM';
+                document.getElementById('lockPeriodDisplay').textContent = lockDays + ' Days';
+                document.getElementById('lockEndsDisplay').textContent = stakeLockEnd.toLocaleDateString();
+                document.getElementById('ramBalance').textContent = ramBalance.toLocaleString();
+                document.getElementById('stakeAmount').value = '';
+
+                addStakeLog(`[SUCCESS] Staked ${amount.toLocaleString()} $RAM for ${lockDays} days!`, 'success');
+                addStakeLog(`[INFO] APY: ${(APY_RATES[lockDays] * 100)}% | Unlock: ${stakeLockEnd.toLocaleDateString()}`, 'info');
+
+                // Start reward accumulation
+                startRewardAccumulation();
+                startCountdown();
+                updateStakingUI();
+            }, 1500);
+        }
+
+        function startRewardAccumulation() {
+            if (stakingInterval) clearInterval(stakingInterval);
+            
+            const apy = APY_RATES[stakeLockDays];
+            const ramValue = stakedAmount * RAM_PRICE;
+            
+            stakingInterval = setInterval(() => {
+                // Calculate SOL earned per second
+                const yearlyReturn = ramValue * apy;
+                const secondReturn = yearlyReturn / (365 * 24 * 60 * 60);
+                const solEarned = secondReturn / SOL_PRICE;
+                
+                pendingSol += solEarned;
+                
+                // Update displays
+                document.getElementById('earnedSol').textContent = pendingSol.toFixed(6);
+                document.getElementById('pendingRewards').textContent = pendingSol.toFixed(6) + ' SOL';
+                
+                // Update reward progress bar (based on expected total)
+                const elapsedSeconds = (Date.now() - stakeStartTime) / 1000;
+                const totalSeconds = stakeLockDays * 24 * 60 * 60;
+                const progress = Math.min((elapsedSeconds / totalSeconds) * 100, 100);
+                document.getElementById('rewardProgressBar').style.width = progress + '%';
+                document.getElementById('rewardPercent').textContent = progress.toFixed(1) + '%';
+                
+                // Random reward events
+                if (Math.random() < 0.01) {
+                    const bonus = (Math.random() * 0.0001).toFixed(6);
+                    addStakeLog(`[REWARD] +${bonus} SOL accumulated`, 'success');
+                }
+            }, 1000);
+        }
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                if (!stakeLockEnd) return;
+                
+                const now = Date.now();
+                const remaining = stakeLockEnd.getTime() - now;
+                
+                if (remaining <= 0) {
+                    document.getElementById('timeRemaining').textContent = '✅ UNLOCKED';
+                    document.getElementById('timeRemaining').style.color = 'var(--accent-green)';
+                    addStakeLog('[UNLOCK] Your stake is now unlocked!', 'success');
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                
+                document.getElementById('timeRemaining').textContent = 
+                    `${days}d ${hours}h ${mins}m ${secs}s`;
+            }, 1000);
         }
 
         function claimRewards() {
-            if (pendingSol <= 0) {
-                alert('No rewards to claim');
+            if (!walletConnected || pendingSol <= 0) {
+                addStakeLog('[ERROR] No rewards to claim', 'warning');
                 return;
             }
 
-            const claimed = pendingSol;
-            pendingSol = 0;
+            addStakeLog('[CLAIM] Processing claim...', 'info');
             
-            document.getElementById('pendingRewards').textContent = '0 SOL';
-            
-            addLog(`[CLAIM] Claimed ${claimed.toFixed(6)} SOL to wallet!`, 'reward');
-            alert(`Successfully claimed ${claimed.toFixed(6)} SOL!\n\nTokens will arrive in your wallet shortly.`);
+            setTimeout(() => {
+                const claimed = pendingSol;
+                totalClaimedSol += claimed;
+                pendingSol = 0;
+                
+                document.getElementById('pendingRewards').textContent = '0.000000 SOL';
+                
+                addStakeLog(`[SUCCESS] Claimed ${claimed.toFixed(6)} SOL!`, 'reward');
+                addStakeLog(`[INFO] SOL sent to ${walletAddress.slice(0,4)}...${walletAddress.slice(-4)}`, 'info');
+                
+                // Show success notification
+                showNotification(`Successfully claimed ${claimed.toFixed(6)} SOL!`, 'success');
+            }, 1500);
         }
 
         function unstakeTokens() {
-            if (stakedAmount <= 0) {
-                alert('No tokens staked');
+            if (!walletConnected || stakedAmount <= 0) {
+                addStakeLog('[ERROR] No tokens staked', 'warning');
                 return;
             }
 
             const now = new Date();
-            let penalty = 0;
-            let returnAmount = stakedAmount;
+            const isEarly = stakeLockEnd && now < stakeLockEnd;
+            const penalty = isEarly ? PENALTIES[stakeLockDays] : 0;
+            const penaltyAmount = stakedAmount * penalty;
+            const returnAmount = stakedAmount - penaltyAmount;
 
-            if (stakeLockEnd && now < stakeLockEnd) {
-                // Early unstake penalty
-                penalty = stakedAmount * 0.1;
-                returnAmount = stakedAmount - penalty;
+            let confirmMsg = `Unstake ${stakedAmount.toLocaleString()} $RAM?\n\n`;
+            if (isEarly) {
+                confirmMsg += `⚠️ EARLY UNSTAKE WARNING ⚠️\n`;
+                confirmMsg += `Penalty: ${(penalty * 100)}% (${penaltyAmount.toLocaleString()} $RAM)\n`;
+                confirmMsg += `You will receive: ${returnAmount.toLocaleString()} $RAM\n\n`;
+            }
+            confirmMsg += `Pending SOL rewards: ${pendingSol.toFixed(6)} SOL`;
+
+            if (!confirm(confirmMsg)) return;
+
+            addStakeLog('[UNSTAKE] Processing...', 'info');
+
+            setTimeout(() => {
+                // Return tokens
+                ramBalance += returnAmount;
                 
-                if (!confirm(`Early unstake will incur a 10% penalty.\n\nYou will receive: ${returnAmount.toLocaleString()} $RAM\nPenalty: ${penalty.toLocaleString()} $RAM\n\nContinue?`)) {
-                    return;
+                // Auto-claim pending rewards
+                if (pendingSol > 0) {
+                    totalClaimedSol += pendingSol;
+                    addStakeLog(`[CLAIM] Auto-claimed ${pendingSol.toFixed(6)} SOL`, 'success');
                 }
-            }
 
-            // Process unstake
-            ramBalance += returnAmount;
-            stakedAmount = 0;
-            stakeLockEnd = null;
+                // Reset state
+                const unstakedAmount = stakedAmount;
+                stakedAmount = 0;
+                pendingSol = 0;
+                stakeLockEnd = null;
+                stakeLockDays = 0;
+                stakeStartTime = null;
 
-            // Stop earning
-            if (stakingInterval) {
-                clearInterval(stakingInterval);
-                stakingInterval = null;
-            }
+                // Stop intervals
+                if (stakingInterval) clearInterval(stakingInterval);
+                if (countdownInterval) clearInterval(countdownInterval);
 
-            // Update UI
-            document.getElementById('totalStaked').textContent = '0';
-            document.getElementById('stakedDisplay').textContent = '0 $RAM';
-            document.getElementById('lockEndsDisplay').textContent = '--';
-            document.getElementById('ramBalance').textContent = ramBalance.toLocaleString();
+                // Update UI
+                document.getElementById('totalStaked').textContent = '0';
+                document.getElementById('stakedDisplay').textContent = '0 $RAM';
+                document.getElementById('lockPeriodDisplay').textContent = '--';
+                document.getElementById('lockEndsDisplay').textContent = '--';
+                document.getElementById('timeRemaining').textContent = '--';
+                document.getElementById('timeRemaining').style.color = 'inherit';
+                document.getElementById('pendingRewards').textContent = '0.000000 SOL';
+                document.getElementById('earnedSol').textContent = '0.000000';
+                document.getElementById('ramBalance').textContent = ramBalance.toLocaleString();
+                document.getElementById('rewardProgressBar').style.width = '0%';
+                document.getElementById('rewardPercent').textContent = '0%';
 
-            addLog(`[UNSTAKE] Returned ${returnAmount.toLocaleString()} $RAM to wallet`, 'success');
-            if (penalty > 0) {
-                addLog(`[UNSTAKE] Early penalty: ${penalty.toLocaleString()} $RAM`, 'warning');
-            }
+                addStakeLog(`[SUCCESS] Unstaked ${returnAmount.toLocaleString()} $RAM`, 'success');
+                if (penaltyAmount > 0) {
+                    addStakeLog(`[PENALTY] ${penaltyAmount.toLocaleString()} $RAM burned`, 'warning');
+                }
 
-            updateStakingUI();
+                showNotification(`Unstaked ${returnAmount.toLocaleString()} $RAM!`, 'success');
+                updateStakingUI();
+            }, 1500);
         }
+
+        function showNotification(msg, type) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? '#22c55e' : '#ef4444'};
+                color: white;
+                border-radius: 10px;
+                font-family: inherit;
+                font-weight: 600;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+            notif.textContent = msg;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Input listeners for estimated returns
+        document.getElementById('stakeAmount').addEventListener('input', updateEstimatedReturns);
+        document.getElementById('lockPeriod').addEventListener('change', updateEstimatedReturns);
 
         // Check for wallets on load
         window.addEventListener('load', () => {
             detectRAM();
+            updateStakingUI();
             
             // Auto-connect if previously connected
             if (window.solana && window.solana.isConnected) {
@@ -1299,11 +1570,13 @@
             }
         });
 
-        // Update staking UI when wallet connects
+        // Override wallet connected to also update staking UI
         const originalOnWalletConnected = onWalletConnected;
         onWalletConnected = function() {
             originalOnWalletConnected();
             updateStakingUI();
+            addStakeLog(`[WALLET] Connected: ${walletAddress.slice(0,4)}...${walletAddress.slice(-4)}`, 'success');
+            addStakeLog('[INFO] Ready to stake. Enter amount and select lock period.', 'info');
         };
     </script>
 </body>
