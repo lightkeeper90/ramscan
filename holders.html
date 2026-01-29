@@ -529,82 +529,51 @@
     </footer>
 
     <script>
-        // Configuration: Start time is 1:40 AM Singapore Time (UTC+8)
-        // Set the date to today or next occurrence
-        function getStartTime() {
-            const now = new Date();
-            
-            // Create start time: 1:40 AM SGT (UTC+8)
-            // SGT is UTC+8, so 1:40 AM SGT = 17:40 UTC previous day
-            const startTime = new Date();
-            startTime.setUTCHours(17, 40, 0, 0); // 17:40 UTC = 1:40 AM SGT next day
-            
-            // If we're past today's start time, it already started today
-            // If not, check if it should start today
-            if (now.getTime() > startTime.getTime()) {
-                // Check if we're within 24 hours of start
-                const elapsed = now.getTime() - startTime.getTime();
-                if (elapsed > 24 * 60 * 60 * 1000) {
-                    // More than 24 hours passed, move to next day
-                    startTime.setDate(startTime.getDate() + 1);
-                }
-            }
-            
-            return startTime;
-        }
-
-        function getEndTime() {
-            const start = getStartTime();
-            return new Date(start.getTime() + 24 * 60 * 60 * 1000); // 24 hours after start
-        }
+        // ========== COUNTDOWN CONFIGURATION ==========
+        // 15 hours from now
+        const GIVEAWAY_END = new Date('2026-01-29T16:20:00Z');
 
         function updateCountdown() {
             const now = new Date();
-            const startTime = getStartTime();
-            const endTime = getEndTime();
-
             const waitingEl = document.getElementById('waitingState');
             const countdownEl = document.getElementById('countdownState');
             const endedEl = document.getElementById('endedState');
 
-            // Before start time - show waiting
-            if (now < startTime) {
-                waitingEl.style.display = 'block';
-                countdownEl.style.display = 'none';
-                endedEl.style.display = 'none';
+            const remaining = GIVEAWAY_END - now;
+
+            // Giveaway ended
+            if (remaining <= 0) {
+                if (waitingEl) waitingEl.style.display = 'none';
+                if (countdownEl) countdownEl.style.display = 'none';
+                if (endedEl) endedEl.style.display = 'block';
+                const winnerEl = document.getElementById('winnerWallet');
+                if (winnerEl) winnerEl.textContent = 'To be announced on X @RAMScan';
                 return;
             }
 
-            // After end time - show winner
-            if (now >= endTime) {
-                waitingEl.style.display = 'none';
-                countdownEl.style.display = 'none';
-                endedEl.style.display = 'block';
-                
-                // Show winner wallet (you can change this)
-                document.getElementById('winnerWallet').textContent = 'To be announced on X @RAMScan';
-                return;
-            }
+            // Giveaway active - show countdown
+            if (waitingEl) waitingEl.style.display = 'none';
+            if (countdownEl) countdownEl.style.display = 'block';
+            if (endedEl) endedEl.style.display = 'none';
 
-            // During countdown
-            waitingEl.style.display = 'none';
-            countdownEl.style.display = 'block';
-            endedEl.style.display = 'none';
-
-            const remaining = endTime - now;
-            
-            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const totalHours = Math.floor(remaining / (1000 * 60 * 60));
             const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
-            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+
+            if (hoursEl) hoursEl.textContent = totalHours.toString().padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
         }
 
-        // Update every second
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        // Start countdown immediately and update every second
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
     </script>
 </body>
 </html>
